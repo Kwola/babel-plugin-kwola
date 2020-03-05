@@ -149,7 +149,7 @@ export default function({types: t }) {
         DoWhileStatement(path) {
             if(path.node.body.type !== "BlockStatement")
             {
-                path.replaceWith(t.WhileStatement(
+                path.replaceWith(t.DoWhileStatement(
                     path.node.test,
                     t.blockStatement([path.node.body])
                 ));
@@ -193,7 +193,7 @@ export default function({types: t }) {
         WithStatement(path) {
             if(path.node.body.type !== "BlockStatement")
             {
-                path.replaceWith(t.ForOfStatement(
+                path.replaceWith(t.WithStatement(
                     path.node.object,
                     t.blockStatement([path.node.body])
                 ));
