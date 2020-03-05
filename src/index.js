@@ -1,6 +1,11 @@
+import Math from "math"
+
 export default function({types: t }) {
   let branchCounter = 0;
 
+  let fileIdentifier = Math.random().toString().replace("0.", "");
+
+  let globalCounterVariable = `globalKwolaCounter_${fileIdentifier}`;
 
   let createCounterExpression = (path) =>
   {
@@ -16,7 +21,7 @@ export default function({types: t }) {
     return  t.assignmentExpression(
                     "+=",
                     t.memberExpression(
-                        t.Identifier("globalFileKwolaCounter"),
+                        t.Identifier(globalCounterVariable),
                         t.Identifier(id.toString()),
                         true
                     ),
@@ -37,7 +42,7 @@ export default function({types: t }) {
                   t.VariableDeclaration("const", [
 
                       t.VariableDeclarator(
-                            t.Identifier('globalFileKwolaCounter'),
+                            t.Identifier(globalCounterVariable),
                             t.memberExpression(
                                 t.memberExpression(
                                         t.Identifier('window'),
