@@ -35,8 +35,8 @@ export default function({types: t }) {
         Program: {
            exit(path)
            {
-              let path = path.hub.file.opts.filename;
-              const segments = path.split("/");
+              let filePath = path.hub.file.opts.filename;
+              const segments = filePath.split("/");
               let file = segments[segments.length - 1];
 
               path.unshiftContainer('body',
