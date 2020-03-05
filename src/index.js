@@ -20,7 +20,7 @@ export default function({types: t }) {
                         t.Identifier(id.toString()),
                         true
                     ),
-                    t.numberLiteral(1)
+                    t.NumericLiteral(1)
              );
 
   }
@@ -66,7 +66,7 @@ export default function({types: t }) {
 
                             t.newExpression(
                                     t.Identifier('BigUint64Array'),
-                                    [t.numberLiteral(branchCounter)]
+                                    [t.NumericLiteral(branchCounter)]
                                 )
                      )
 
