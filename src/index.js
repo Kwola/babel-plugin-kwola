@@ -17,7 +17,7 @@ export default function({types: t }) {
                     "+=",
                     t.memberExpression(
                         t.Identifier("globalFileKwolaCounter"),
-                        t.Identifier(id),
+                        t.Identifier(id.toString()),
                         true
                     ),
                     t.numberLiteral(1)

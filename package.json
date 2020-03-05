@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-kwola",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "Plugin to instrument a JS application to be analyzed by kwola.",
   "repository": "git://github.com/kwola/babel-plugin-kwola",
   "author": "Bradley Allen Arsenault <brad@kwola.io>",
