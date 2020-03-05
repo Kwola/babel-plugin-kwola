@@ -1,4 +1,3 @@
-import Math from "math"
 
 export default function({types: t }) {
   let branchCounter = 0;
@@ -28,7 +27,7 @@ export default function({types: t }) {
                     t.NumericLiteral(1)
              );
 
-  }
+  };
 
 
   return {
@@ -36,7 +35,9 @@ export default function({types: t }) {
         Program: {
            exit(path)
            {
-              let file = path.hub.file.opts.filename;
+              let path = path.hub.file.opts.filename;
+              const segments = path.split("/");
+              let file = segments[segments.length - 1];
 
               path.unshiftContainer('body',
                   t.VariableDeclaration("const", [
@@ -70,7 +71,7 @@ export default function({types: t }) {
                                 ),
 
                             t.newExpression(
-                                    t.Identifier('BigUint64Array'),
+                                    t.Identifier('Uint32Array'),
                                     [t.NumericLiteral(branchCounter)]
                                 )
                      )
