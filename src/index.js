@@ -215,7 +215,7 @@ export default function({types: t }) {
                                                            t.Identifier("indexOf")
                                                        ),
                                                        [t.Identifier(globalEventVariableName)]
-                                                   ), t.NumberLiteral(1)]
+                                                   ), t.NumericLiteral(1)]
                                                )
                                            )
                                        ),
