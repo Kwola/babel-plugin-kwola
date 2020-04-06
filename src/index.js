@@ -71,277 +71,6 @@ export default function({types: t }) {
 
   return {
     visitor: {
-        Program: {
-           exit(path)
-           {
-              let filePath = path.hub.file.opts.filename;
-              const segments = filePath.split("/");
-              let file = segments[segments.length - 1];
-
-               path.unshiftContainer('body',
-                   t.VariableDeclaration("const", [
-
-                       t.VariableDeclarator(
-                           t.Identifier(globalAddEventListener),
-
-                           t.ArrowFunctionExpression(
-                               [t.Identifier(globalElementVariableName), t.Identifier(globalEventVariableName), t.Identifier(globalFuncVariableName)],
-                               t.BlockStatement(
-                                   [
-                                       t.IfStatement(
-                                           t.UnaryExpression(
-                                               "!",
-                                               t.CallExpression(
-                                                   t.MemberExpression(
-                                                       t.Identifier(globalEventsVariable),
-                                                       t.Identifier("has")
-                                                   ),
-                                                   [t.Identifier(globalElementVariableName)]
-                                               )
-                                           ),
-                                           t.ExpressionStatement(
-                                               t.CallExpression(
-                                                   t.MemberExpression(
-                                                       t.Identifier(globalEventsVariable),
-                                                       t.Identifier("set")
-                                                   ),
-                                                   [t.Identifier(globalElementVariableName), t.ArrayExpression([])]
-                                               )
-                                           )
-                                       ),
-                                       t.ExpressionStatement(
-                                           t.CallExpression(
-                                               t.MemberExpression(
-                                                   t.CallExpression(
-                                                       t.MemberExpression(
-                                                           t.Identifier(globalEventsVariable),
-                                                           t.Identifier("get")
-                                                       ),
-                                                       [t.Identifier(globalElementVariableName)]
-                                                   ),
-                                                   t.Identifier("push")
-                                               ),
-                                               [
-                                                   t.Identifier(globalEventVariableName)
-                                               ]
-                                           )
-                                       ),
-                                       t.ExpressionStatement(
-                                           t.CallExpression(
-                                               t.MemberExpression(
-                                                   t.Identifier(globalElementVariableName),
-                                                   t.Identifier("addEventListener")
-                                               ),
-                                               [
-                                                   t.Identifier(globalEventVariableName),
-                                                   t.Identifier(globalFuncVariableName)
-                                               ]
-                                           )
-                                       )
-                                   ]
-                               )
-                           )
-                       )
-                   ])
-               );
-
-
-               path.unshiftContainer('body',
-                   t.VariableDeclaration("const", [
-
-                       t.VariableDeclarator(
-                           t.Identifier(globalRemoveEventListener),
-
-                           t.ArrowFunctionExpression(
-                               [t.Identifier(globalElementVariableName), t.Identifier(globalEventVariableName), t.Identifier(globalFuncVariableName)],
-                               t.BlockStatement(
-                                   [
-                                       t.IfStatement(
-                                           t.UnaryExpression(
-                                               "!",
-                                               t.CallExpression(
-                                                   t.MemberExpression(
-                                                       t.Identifier(globalEventsVariable),
-                                                       t.Identifier("has")
-                                                   ),
-                                                   [t.Identifier(globalElementVariableName)]
-                                               )
-                                           ),
-                                           t.ExpressionStatement(
-                                               t.CallExpression(
-                                                   t.MemberExpression(
-                                                       t.Identifier(globalEventsVariable),
-                                                       t.Identifier("set")
-                                                   ),
-                                                   [t.Identifier(globalElementVariableName), t.ArrayExpression([])]
-                                               )
-                                           )
-                                       ),
-                                       t.IfStatement(
-                                           t.CallExpression(
-                                               t.MemberExpression(
-                                                   t.CallExpression(
-                                                       t.MemberExpression(
-                                                           t.Identifier(globalEventsVariable),
-                                                           t.Identifier("get")
-                                                       ),
-                                                       [t.Identifier(globalElementVariableName)]
-                                                   ),
-                                                   t.Identifier("includes")
-                                               ),
-                                               [t.Identifier(globalEventVariableName)]
-                                           ),
-                                           t.ExpressionStatement(
-                                               t.CallExpression(
-                                                   t.MemberExpression(
-                                                       t.CallExpression(
-                                                           t.MemberExpression(
-                                                               t.Identifier(globalEventsVariable),
-                                                               t.Identifier("get")
-                                                           ),
-                                                           [t.Identifier(globalElementVariableName)]
-                                                       ),
-                                                       t.Identifier("splice")
-                                                   ),
-                                                   [t.CallExpression(
-                                                       t.MemberExpression(
-                                                           t.CallExpression(
-                                                               t.MemberExpression(
-                                                                   t.Identifier(globalEventsVariable),
-                                                                   t.Identifier("get")
-                                                               ),
-                                                               [t.Identifier(globalElementVariableName)]
-                                                           ),
-                                                           t.Identifier("indexOf")
-                                                       ),
-                                                       [t.Identifier(globalEventVariableName)]
-                                                   ), t.NumericLiteral(1)]
-                                               )
-                                           )
-                                       ),
-                                       t.ExpressionStatement(
-                                           t.CallExpression(
-                                               t.MemberExpression(
-                                                   t.Identifier(globalElementVariableName),
-                                                   t.Identifier("removeEventListener")
-                                               ),
-                                               [
-                                                   t.Identifier(globalEventVariableName),
-                                                   t.Identifier(globalFuncVariableName)
-                                               ]
-                                           )
-                                       )
-                                   ]
-                               )
-                           )
-                       )
-                   ])
-               );
-
-               path.unshiftContainer('body',
-                   t.VariableDeclaration("const", [
-
-                       t.VariableDeclarator(
-                           t.Identifier(globalEventsVariable),
-                           t.memberExpression(
-                               t.Identifier('window'),
-                               t.Identifier('kwolaEvents')
-                           )
-                       )
-
-                   ])
-               );
-
-              path.unshiftContainer('body',
-                  t.VariableDeclaration("const", [
-
-                      t.VariableDeclarator(
-                            t.Identifier(globalCounterVariable),
-                            t.memberExpression(
-                                t.memberExpression(
-                                        t.Identifier('window'),
-                                        t.Identifier('kwolaCounters')
-                                    ),
-                                    t.stringLiteral(file),
-                                    true
-                                )
-                     )
-
-                  ])
-              );
-
-              path.unshiftContainer('body',
-                  t.expressionStatement(
-                      t.assignmentExpression(
-                            "=",
-                            t.memberExpression(
-                                t.memberExpression(
-                                        t.Identifier('window'),
-                                        t.Identifier('kwolaCounters')
-                                    ),
-                                    t.stringLiteral(file),
-                                    true
-                                ),
-
-                            t.newExpression(
-                                    t.Identifier('Uint32Array'),
-                                    [t.NumericLiteral(branchCounter)]
-                                )
-                     )
-
-                  )
-              );
-
-
-               path.unshiftContainer('body',
-                   t.IfStatement(
-                       t.UnaryExpression("!",
-                           t.memberExpression(
-                               t.Identifier('window'),
-                               t.Identifier('kwolaEvents')
-                           )
-                       ),
-                       t.expressionStatement(
-                           t.assignmentExpression(
-                               "=",
-                               t.memberExpression(
-                                   t.Identifier('window'),
-                                   t.Identifier('kwolaEvents')
-                               ),
-                               t.newExpression(
-                                   t.Identifier('WeakMap'),
-                                   []
-                               )
-                           )
-
-                       )
-                   )
-               );
-
-              path.unshiftContainer('body',
-                  t.IfStatement(
-                      t.UnaryExpression("!",
-                            t.memberExpression(
-                                    t.Identifier('window'),
-                                    t.Identifier('kwolaCounters')
-                                )
-                        ),
-                  t.expressionStatement(
-                      t.assignmentExpression(
-                            "=",
-                            t.memberExpression(
-                                    t.Identifier('window'),
-                                    t.Identifier('kwolaCounters')
-                                ),
-                            t.ObjectExpression([])
-                     )
-
-                  )
-                  )
-              );
-          }
-        },
-
         CallExpression(path) {
             if(path.node.arguments.length === 2 &&
                 path.node.arguments[0].type === "Identifier" &&
@@ -376,7 +105,7 @@ export default function({types: t }) {
                 && path.node.test.argument.object.type === 'Identifier'
                 && path.node.test.argument.property.type === 'Identifier'
                 && path.node.test.argument.object.name === 'window'
-                && path.node.test.argument.property.name === 'kwolaCounters')
+                && (path.node.test.argument.property.name === 'kwolaCounters' || path.node.test.argument.property.name === 'kwolaEvents'))
                 {
                     // Ignore this one
                     return;
@@ -466,6 +195,277 @@ export default function({types: t }) {
                     path.node.object,
                     t.blockStatement([path.node.body])
                 ));
+            }
+        },
+
+        Program: {
+            exit(path)
+            {
+                let filePath = path.hub.file.opts.filename;
+                const segments = filePath.split("/");
+                let file = segments[segments.length - 1];
+
+                path.unshiftContainer('body',
+                    t.VariableDeclaration("const", [
+
+                        t.VariableDeclarator(
+                            t.Identifier(globalAddEventListener),
+
+                            t.ArrowFunctionExpression(
+                                [t.Identifier(globalElementVariableName), t.Identifier(globalEventVariableName), t.Identifier(globalFuncVariableName)],
+                                t.BlockStatement(
+                                    [
+                                        t.IfStatement(
+                                            t.UnaryExpression(
+                                                "!",
+                                                t.CallExpression(
+                                                    t.MemberExpression(
+                                                        t.Identifier(globalEventsVariable),
+                                                        t.Identifier("has")
+                                                    ),
+                                                    [t.Identifier(globalElementVariableName)]
+                                                )
+                                            ),
+                                            t.ExpressionStatement(
+                                                t.CallExpression(
+                                                    t.MemberExpression(
+                                                        t.Identifier(globalEventsVariable),
+                                                        t.Identifier("set")
+                                                    ),
+                                                    [t.Identifier(globalElementVariableName), t.ArrayExpression([])]
+                                                )
+                                            )
+                                        ),
+                                        t.ExpressionStatement(
+                                            t.CallExpression(
+                                                t.MemberExpression(
+                                                    t.CallExpression(
+                                                        t.MemberExpression(
+                                                            t.Identifier(globalEventsVariable),
+                                                            t.Identifier("get")
+                                                        ),
+                                                        [t.Identifier(globalElementVariableName)]
+                                                    ),
+                                                    t.Identifier("push")
+                                                ),
+                                                [
+                                                    t.Identifier(globalEventVariableName)
+                                                ]
+                                            )
+                                        ),
+                                        t.ExpressionStatement(
+                                            t.CallExpression(
+                                                t.MemberExpression(
+                                                    t.Identifier(globalElementVariableName),
+                                                    t.Identifier("addEventListener")
+                                                ),
+                                                [
+                                                    t.Identifier(globalEventVariableName),
+                                                    t.Identifier(globalFuncVariableName)
+                                                ]
+                                            )
+                                        )
+                                    ]
+                                )
+                            )
+                        )
+                    ])
+                );
+
+
+                path.unshiftContainer('body',
+                    t.VariableDeclaration("const", [
+
+                        t.VariableDeclarator(
+                            t.Identifier(globalRemoveEventListener),
+
+                            t.ArrowFunctionExpression(
+                                [t.Identifier(globalElementVariableName), t.Identifier(globalEventVariableName), t.Identifier(globalFuncVariableName)],
+                                t.BlockStatement(
+                                    [
+                                        t.IfStatement(
+                                            t.UnaryExpression(
+                                                "!",
+                                                t.CallExpression(
+                                                    t.MemberExpression(
+                                                        t.Identifier(globalEventsVariable),
+                                                        t.Identifier("has")
+                                                    ),
+                                                    [t.Identifier(globalElementVariableName)]
+                                                )
+                                            ),
+                                            t.ExpressionStatement(
+                                                t.CallExpression(
+                                                    t.MemberExpression(
+                                                        t.Identifier(globalEventsVariable),
+                                                        t.Identifier("set")
+                                                    ),
+                                                    [t.Identifier(globalElementVariableName), t.ArrayExpression([])]
+                                                )
+                                            )
+                                        ),
+                                        t.IfStatement(
+                                            t.CallExpression(
+                                                t.MemberExpression(
+                                                    t.CallExpression(
+                                                        t.MemberExpression(
+                                                            t.Identifier(globalEventsVariable),
+                                                            t.Identifier("get")
+                                                        ),
+                                                        [t.Identifier(globalElementVariableName)]
+                                                    ),
+                                                    t.Identifier("includes")
+                                                ),
+                                                [t.Identifier(globalEventVariableName)]
+                                            ),
+                                            t.ExpressionStatement(
+                                                t.CallExpression(
+                                                    t.MemberExpression(
+                                                        t.CallExpression(
+                                                            t.MemberExpression(
+                                                                t.Identifier(globalEventsVariable),
+                                                                t.Identifier("get")
+                                                            ),
+                                                            [t.Identifier(globalElementVariableName)]
+                                                        ),
+                                                        t.Identifier("splice")
+                                                    ),
+                                                    [t.CallExpression(
+                                                        t.MemberExpression(
+                                                            t.CallExpression(
+                                                                t.MemberExpression(
+                                                                    t.Identifier(globalEventsVariable),
+                                                                    t.Identifier("get")
+                                                                ),
+                                                                [t.Identifier(globalElementVariableName)]
+                                                            ),
+                                                            t.Identifier("indexOf")
+                                                        ),
+                                                        [t.Identifier(globalEventVariableName)]
+                                                    ), t.NumericLiteral(1)]
+                                                )
+                                            )
+                                        ),
+                                        t.ExpressionStatement(
+                                            t.CallExpression(
+                                                t.MemberExpression(
+                                                    t.Identifier(globalElementVariableName),
+                                                    t.Identifier("removeEventListener")
+                                                ),
+                                                [
+                                                    t.Identifier(globalEventVariableName),
+                                                    t.Identifier(globalFuncVariableName)
+                                                ]
+                                            )
+                                        )
+                                    ]
+                                )
+                            )
+                        )
+                    ])
+                );
+
+                path.unshiftContainer('body',
+                    t.VariableDeclaration("const", [
+
+                        t.VariableDeclarator(
+                            t.Identifier(globalEventsVariable),
+                            t.memberExpression(
+                                t.Identifier('window'),
+                                t.Identifier('kwolaEvents')
+                            )
+                        )
+
+                    ])
+                );
+
+                path.unshiftContainer('body',
+                    t.VariableDeclaration("const", [
+
+                        t.VariableDeclarator(
+                            t.Identifier(globalCounterVariable),
+                            t.memberExpression(
+                                t.memberExpression(
+                                    t.Identifier('window'),
+                                    t.Identifier('kwolaCounters')
+                                ),
+                                t.stringLiteral(file),
+                                true
+                            )
+                        )
+
+                    ])
+                );
+
+                path.unshiftContainer('body',
+                    t.expressionStatement(
+                        t.assignmentExpression(
+                            "=",
+                            t.memberExpression(
+                                t.memberExpression(
+                                    t.Identifier('window'),
+                                    t.Identifier('kwolaCounters')
+                                ),
+                                t.stringLiteral(file),
+                                true
+                            ),
+
+                            t.newExpression(
+                                t.Identifier('Uint32Array'),
+                                [t.NumericLiteral(branchCounter)]
+                            )
+                        )
+
+                    )
+                );
+
+
+                path.unshiftContainer('body',
+                    t.IfStatement(
+                        t.UnaryExpression("!",
+                            t.memberExpression(
+                                t.Identifier('window'),
+                                t.Identifier('kwolaEvents')
+                            )
+                        ),
+                        t.expressionStatement(
+                            t.assignmentExpression(
+                                "=",
+                                t.memberExpression(
+                                    t.Identifier('window'),
+                                    t.Identifier('kwolaEvents')
+                                ),
+                                t.newExpression(
+                                    t.Identifier('WeakMap'),
+                                    []
+                                )
+                            )
+
+                        )
+                    )
+                );
+
+                path.unshiftContainer('body',
+                    t.IfStatement(
+                        t.UnaryExpression("!",
+                            t.memberExpression(
+                                t.Identifier('window'),
+                                t.Identifier('kwolaCounters')
+                            )
+                        ),
+                        t.expressionStatement(
+                            t.assignmentExpression(
+                                "=",
+                                t.memberExpression(
+                                    t.Identifier('window'),
+                                    t.Identifier('kwolaCounters')
+                                ),
+                                t.ObjectExpression([])
+                            )
+
+                        )
+                    )
+                );
             }
         },
     }
