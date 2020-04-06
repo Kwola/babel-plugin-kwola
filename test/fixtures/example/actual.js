@@ -36,3 +36,8 @@ switch(munch)
         break;
 
 }
+
+
+document.getElementById("stuff").addEventListener("click", () => "stuff");
+
+document.getElementById("stuff").removeEventListener("click", () => "stuff");
