@@ -206,7 +206,7 @@ export default function({types: t }) {
                 let file = segments[segments.length - 1];
 
                 path.unshiftContainer('body',
-                    t.VariableDeclaration("const", [
+                    t.VariableDeclaration("var", [
 
                         t.VariableDeclarator(
                             t.Identifier(globalAddEventListener),
@@ -274,7 +274,7 @@ export default function({types: t }) {
 
 
                 path.unshiftContainer('body',
-                    t.VariableDeclaration("const", [
+                    t.VariableDeclaration("var", [
 
                         t.VariableDeclarator(
                             t.Identifier(globalRemoveEventListener),
@@ -366,7 +366,7 @@ export default function({types: t }) {
                 );
 
                 path.unshiftContainer('body',
-                    t.VariableDeclaration("const", [
+                    t.VariableDeclaration("var", [
 
                         t.VariableDeclarator(
                             t.Identifier(globalEventsVariable),
@@ -380,7 +380,7 @@ export default function({types: t }) {
                 );
 
                 path.unshiftContainer('body',
-                    t.VariableDeclaration("const", [
+                    t.VariableDeclaration("var", [
 
                         t.VariableDeclarator(
                             t.Identifier(globalCounterVariable),
