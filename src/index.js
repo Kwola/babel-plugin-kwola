@@ -68,10 +68,13 @@ export default function({types: t }) {
         return false;
     };
 
+    let hasInstalledHeader = false;
 
   return {
     visitor: {
         CallExpression(path) {
+            if(hasInstalledHeader) return;
+
             if(path.node.arguments.length === 2 &&
                 path.node.arguments[0].type === "Identifier" &&
                 path.node.arguments[0].name === globalEventVariableName)
@@ -96,10 +99,14 @@ export default function({types: t }) {
         },
 
         BlockStatement(path) {
+            if(hasInstalledHeader) return;
+
               path.unshiftContainer('body', t.expressionStatement(createCounterExpression(path)));
         },
 
         IfStatement(path) {
+            if(hasInstalledHeader) return;
+
             if(path.node.test.type === 'UnaryExpression'
                 && path.node.test.argument.type === 'MemberExpression'
                 && path.node.test.argument.object.type === 'Identifier'
@@ -131,10 +138,14 @@ export default function({types: t }) {
         },
 
         SwitchCase(path) {
+            if(hasInstalledHeader) return;
+
               path.unshiftContainer('consequent', t.expressionStatement(createCounterExpression(path)));
         },
 
         WhileStatement(path) {
+            if(hasInstalledHeader) return;
+
             if(path.node.body.type !== "BlockStatement")
             {
                 path.replaceWith(t.WhileStatement(
@@ -145,6 +156,8 @@ export default function({types: t }) {
         },
 
         DoWhileStatement(path) {
+            if(hasInstalledHeader) return;
+
             if(path.node.body.type !== "BlockStatement")
             {
                 path.replaceWith(t.DoWhileStatement(
@@ -155,6 +168,8 @@ export default function({types: t }) {
         },
 
         ForStatement(path) {
+            if(hasInstalledHeader) return;
+
             if(path.node.body.type !== "BlockStatement")
             {
                 path.replaceWith(t.ForStatement(
@@ -167,6 +182,8 @@ export default function({types: t }) {
         },
 
         ForInStatement(path) {
+            if(hasInstalledHeader) return;
+
             if(path.node.body.type !== "BlockStatement")
             {
                 path.replaceWith(t.ForInStatement(
@@ -178,6 +195,8 @@ export default function({types: t }) {
         },
 
         ForOfStatement(path) {
+            if(hasInstalledHeader) return;
+
             if(path.node.body.type !== "BlockStatement")
             {
                 path.replaceWith(t.ForOfStatement(
@@ -189,6 +208,8 @@ export default function({types: t }) {
         },
 
         WithStatement(path) {
+            if(hasInstalledHeader) return;
+
             if(path.node.body.type !== "BlockStatement")
             {
                 path.replaceWith(t.WithStatement(
@@ -201,6 +222,8 @@ export default function({types: t }) {
         Program: {
             exit(path)
             {
+                hasInstalledHeader = true;
+
                 let filePath = path.hub.file.opts.filename;
                 const segments = filePath.split("/");
                 let file = segments[segments.length - 1];
@@ -366,106 +389,108 @@ export default function({types: t }) {
                 );
 
                 path.unshiftContainer('body',
-                    t.VariableDeclaration("var", [
+                    t.TryStatement(
+                        t.BlockStatement(
+                            [
+                                t.IfStatement(
+                                    t.UnaryExpression("!",
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier('kwolaCounters')
+                                        )
+                                    ),
+                                    t.expressionStatement(
+                                        t.assignmentExpression(
+                                            "=",
+                                            t.memberExpression(
+                                                t.Identifier('window'),
+                                                t.Identifier('kwolaCounters')
+                                            ),
+                                            t.ObjectExpression([])
+                                        )
 
-                        t.VariableDeclarator(
-                            t.Identifier(globalEventsVariable),
-                            t.memberExpression(
-                                t.Identifier('window'),
-                                t.Identifier('kwolaEvents')
-                            )
+                                    )
+                                ),
+                                t.IfStatement(
+                                    t.UnaryExpression("!",
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier('kwolaEvents')
+                                        )
+                                    ),
+                                    t.expressionStatement(
+                                        t.assignmentExpression(
+                                            "=",
+                                            t.memberExpression(
+                                                t.Identifier('window'),
+                                                t.Identifier('kwolaEvents')
+                                            ),
+                                            t.newExpression(
+                                                t.Identifier('WeakMap'),
+                                                []
+                                            )
+                                        )
+
+                                    )
+                                ),
+                                t.expressionStatement(
+                                    t.assignmentExpression(
+                                        "=",
+                                        t.memberExpression(
+                                            t.memberExpression(
+                                                t.Identifier('window'),
+                                                t.Identifier('kwolaCounters')
+                                            ),
+                                            t.stringLiteral(file),
+                                            true
+                                        ),
+                                        t.Identifier(globalCounterVariable)
+                                    )
+                                ),
+                                t.expressionStatement(
+                                    t.assignmentExpression(
+                                        "=",
+                                        t.Identifier(globalEventsVariable),
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier('kwolaEvents')
+                                        )
+                                    )
+                                )
+                            ]
+                        ),
+                        t.CatchClause(
+                            t.Identifier("err"),
+                            t.BlockStatement([])
                         )
-
-                    ])
+                    )
                 );
 
                 path.unshiftContainer('body',
                     t.VariableDeclaration("var", [
-
                         t.VariableDeclarator(
                             t.Identifier(globalCounterVariable),
-                            t.memberExpression(
-                                t.memberExpression(
-                                    t.Identifier('window'),
-                                    t.Identifier('kwolaCounters')
-                                ),
-                                t.stringLiteral(file),
-                                true
-                            )
-                        )
-
-                    ])
-                );
-
-                path.unshiftContainer('body',
-                    t.expressionStatement(
-                        t.assignmentExpression(
-                            "=",
-                            t.memberExpression(
-                                t.memberExpression(
-                                    t.Identifier('window'),
-                                    t.Identifier('kwolaCounters')
-                                ),
-                                t.stringLiteral(file),
-                                true
-                            ),
-
                             t.newExpression(
                                 t.Identifier('Uint32Array'),
                                 [t.NumericLiteral(branchCounter)]
                             )
                         )
-
-                    )
-                );
-
-
-                path.unshiftContainer('body',
-                    t.IfStatement(
-                        t.UnaryExpression("!",
-                            t.memberExpression(
-                                t.Identifier('window'),
-                                t.Identifier('kwolaEvents')
-                            )
-                        ),
-                        t.expressionStatement(
-                            t.assignmentExpression(
-                                "=",
-                                t.memberExpression(
-                                    t.Identifier('window'),
-                                    t.Identifier('kwolaEvents')
-                                ),
-                                t.newExpression(
-                                    t.Identifier('WeakMap'),
-                                    []
-                                )
-                            )
-
-                        )
-                    )
+                    ])
                 );
 
                 path.unshiftContainer('body',
-                    t.IfStatement(
-                        t.UnaryExpression("!",
-                            t.memberExpression(
-                                t.Identifier('window'),
-                                t.Identifier('kwolaCounters')
-                            )
-                        ),
-                        t.expressionStatement(
-                            t.assignmentExpression(
-                                "=",
-                                t.memberExpression(
-                                    t.Identifier('window'),
-                                    t.Identifier('kwolaCounters')
-                                ),
-                                t.ObjectExpression([])
-                            )
+                    t.VariableDeclaration("var", [
 
+                        t.VariableDeclarator(
+                            t.Identifier(globalEventsVariable),
+                            t.newExpression(
+                                t.Identifier('WeakMap'),
+                                []
+                            )
                         )
-                    )
+                    ])
                 );
+
             }
         },
     }
