@@ -2,6 +2,7 @@
 export default function({types: t }) {
   let branchCounter = 0;
   let debugMode = false;
+  let fastMode = false;
 
   let callStatementsInteractedWith = new WeakMap();
 
@@ -56,20 +57,23 @@ export default function({types: t }) {
     let id = branchCounter;
     branchCounter += 1;
 
+    let counterIncrementNode = t.expressionStatement(t.assignmentExpression(
+                                        "+=",
+                                        t.memberExpression(
+                                            t.Identifier(globalCounterVariable),
+                                            t.Identifier(id.toString()),
+                                            true
+                                        ),
+                                        t.NumericLiteral(1)
+                                 ));
+
+    if (fastMode)
+    {
+        return counterIncrementNode;
+    }
+
     return t.TryStatement(
-                t.BlockStatement(
-                    [
-                        t.expressionStatement(t.assignmentExpression(
-                                "+=",
-                                t.memberExpression(
-                                    t.Identifier(globalCounterVariable),
-                                    t.Identifier(id.toString()),
-                                    true
-                                ),
-                                t.NumericLiteral(1)
-                         ))
-                    ]
-                ),
+                t.BlockStatement([counterIncrementNode]),
                 t.CatchClause(
                     t.Identifier("kwolaError"),
                     t.BlockStatement([
@@ -388,6 +392,23 @@ export default function({types: t }) {
         },
 
         Program: {
+            enter(path)
+            {
+                let filePath = path.hub.file.opts.filename;
+                const segments = filePath.split("/");
+                let file = segments[segments.length - 1];
+
+                if(file.indexOf("-debug") != -1)
+                {
+                    debugMode = true;
+                }
+
+                if(file.indexOf("-fast") != -1)
+                {
+                    fastMode = true;
+                }
+            },
+
             exit(path)
             {
                 hasInstalledHeader = true;
