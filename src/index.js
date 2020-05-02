@@ -1,7 +1,9 @@
 
 export default function({types: t }) {
   let branchCounter = 0;
-  let debugMode = false;
+  let debugMode = true;
+
+  let callStatementsInteractedWith = new WeakMap();
 
   let fileIdentifier = Math.random().toString().replace("0.", "").substr(0, 6);
 
@@ -14,7 +16,7 @@ export default function({types: t }) {
     let globalElementVariableName = `element_${fileIdentifier}`;
     let globalFuncVariableName = `func_${fileIdentifier}`;
 
-  let generateCatchClause = () => {
+  let createCatchClause = () => {
 
       if (debugMode)
       {
@@ -68,7 +70,30 @@ export default function({types: t }) {
                          ))
                     ]
                 ),
-                generateCatchClause()
+                t.CatchClause(
+                    t.Identifier("kwolaError"),
+                    t.BlockStatement([
+                        t.TryStatement(
+                            t.BlockStatement(
+                                [
+                                    t.expressionStatement(t.assignmentExpression(
+                                            "+=",
+                                            t.memberExpression(
+                                                t.memberExpression(
+                                                    t.Identifier("window"),
+                                                    t.Identifier(globalCounterVariable)
+                                                ),
+                                                t.Identifier(id.toString()),
+                                                true
+                                            ),
+                                            t.NumericLiteral(1)
+                                     ))
+                                ]
+                            ),
+                            createCatchClause()
+                         )
+                    ])
+                )
              );
   };
 
@@ -118,19 +143,105 @@ export default function({types: t }) {
                 return;
             }
 
+            const origNode = path.node;
+
+            if (callStatementsInteractedWith.has(origNode))
+            {
+                return;
+            }
+            callStatementsInteractedWith.set(origNode, {});
+
+            let runOriginalBlock = [t.ExpressionStatement(origNode)];
+
+            if (debugMode)
+            {
+                runOriginalBlock.splice(0, 0, t.expressionStatement(
+                                                t.CallExpression(
+                                                    t.memberExpression(
+                                                        t.Identifier("console"),
+                                                        t.Identifier("error"),
+                                                        false
+                                                    ),
+                                                    [t.Identifier("kwolaError")]
+                                                )
+                                            ));
+            }
+
+
+
             if(containsAddEventListenerFunction(path.node.callee) && path.node.arguments.length === 2)
             {
-                path.replaceWith(t.CallExpression(
-                    t.Identifier(globalAddEventListener),
-                    [path.node.callee.object].concat(path.node.arguments)
-                ));
+                path.replaceWith(
+                    t.TryStatement(
+                        t.BlockStatement([
+                            t.expressionStatement(
+                                t.CallExpression(
+                                    t.Identifier(globalAddEventListener),
+                                    [path.node.callee.object].concat(path.node.arguments)
+                                )
+                            )
+                        ]),
+                        t.CatchClause(
+                            t.Identifier("kwolaError"),
+                            t.BlockStatement([
+                                t.TryStatement(
+                                    t.BlockStatement([
+                                        t.expressionStatement(
+                                            t.CallExpression(
+                                                t.memberExpression(
+                                                    t.Identifier('window'),
+                                                    t.Identifier(globalAddEventListener)
+                                                ),
+                                                [path.node.callee.object].concat(path.node.arguments)
+                                            )
+                                        )
+                                    ]),
+                                    t.CatchClause(
+                                        t.Identifier("kwolaError"),
+                                        t.BlockStatement(runOriginalBlock)
+                                    )
+                                )
+                            ])
+                        )
+                    )
+                )
             }
             if(containsRemoveEventListenerFunction(path.node.callee) && path.node.arguments.length === 2)
             {
-                path.replaceWith(t.CallExpression(
-                    t.Identifier(globalRemoveEventListener),
-                    [path.node.callee.object].concat(path.node.arguments)
-                ));
+                path.replaceWith(
+                    t.TryStatement(
+                        t.BlockStatement([
+                            t.expressionStatement(
+                                t.CallExpression(
+                                    t.Identifier(globalRemoveEventListener),
+                                    [path.node.callee.object].concat(path.node.arguments)
+                                )
+                            )
+                        ]),
+                        t.CatchClause(
+                            t.Identifier("kwolaError"),
+                            t.BlockStatement([
+                                t.TryStatement(
+                                    t.BlockStatement([
+                                        t.expressionStatement(
+                                            t.CallExpression(
+                                                t.memberExpression(
+                                                    t.Identifier('window'),
+                                                    t.Identifier(globalRemoveEventListener)
+                                                ),
+                                                [path.node.callee.object].concat(path.node.arguments)
+                                            )
+                                        )
+                                    ]),
+                                    t.CatchClause(
+                                        t.Identifier("kwolaError"),
+                                        t.BlockStatement(runOriginalBlock)
+                                    )
+                                )
+                            ])
+                        )
+                    )
+                );
             }
         },
 
@@ -284,6 +395,111 @@ export default function({types: t }) {
                 let filePath = path.hub.file.opts.filename;
                 const segments = filePath.split("/");
                 let file = segments[segments.length - 1];
+
+                path.unshiftContainer('body',
+                    t.TryStatement(
+                        t.BlockStatement(
+                            [
+                                t.IfStatement(
+                                    t.UnaryExpression("!",
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier('kwolaCounters')
+                                        )
+                                    ),
+                                    t.expressionStatement(
+                                        t.assignmentExpression(
+                                            "=",
+                                            t.memberExpression(
+                                                t.Identifier('window'),
+                                                t.Identifier('kwolaCounters')
+                                            ),
+                                            t.ObjectExpression([])
+                                        )
+
+                                    )
+                                ),
+                                t.IfStatement(
+                                    t.UnaryExpression("!",
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier('kwolaEvents')
+                                        )
+                                    ),
+                                    t.expressionStatement(
+                                        t.assignmentExpression(
+                                            "=",
+                                            t.memberExpression(
+                                                t.Identifier('window'),
+                                                t.Identifier('kwolaEvents')
+                                            ),
+                                            t.newExpression(
+                                                t.Identifier('WeakMap'),
+                                                []
+                                            )
+                                        )
+
+                                    )
+                                ),
+                                t.expressionStatement(
+                                    t.assignmentExpression(
+                                        "=",
+                                        t.memberExpression(
+                                            t.memberExpression(
+                                                t.Identifier('window'),
+                                                t.Identifier('kwolaCounters')
+                                            ),
+                                            t.stringLiteral(file),
+                                            true
+                                        ),
+                                        t.Identifier(globalCounterVariable)
+                                    )
+                                ),
+                                t.expressionStatement(
+                                    t.assignmentExpression(
+                                        "=",
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier(globalCounterVariable)
+                                        ),
+                                        t.Identifier(globalCounterVariable)
+                                    )
+                                ),
+                                t.expressionStatement(
+                                    t.assignmentExpression(
+                                        "=",
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier(globalAddEventListener)
+                                        ),
+                                        t.Identifier(globalAddEventListener)
+                                    )
+                                ),
+                                t.expressionStatement(
+                                    t.assignmentExpression(
+                                        "=",
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier(globalRemoveEventListener)
+                                        ),
+                                        t.Identifier(globalRemoveEventListener)
+                                    )
+                                ),
+                                t.expressionStatement(
+                                    t.assignmentExpression(
+                                        "=",
+                                        t.Identifier(globalEventsVariable),
+                                        t.memberExpression(
+                                            t.Identifier('window'),
+                                            t.Identifier('kwolaEvents')
+                                        )
+                                    )
+                                )
+                            ]
+                        ),
+                        createCatchClause()
+                    )
+                );
 
                 path.unshiftContainer('body',
                     t.VariableDeclaration("var", [
@@ -443,81 +659,6 @@ export default function({types: t }) {
                             )
                         )
                     ])
-                );
-
-                path.unshiftContainer('body',
-                    t.TryStatement(
-                        t.BlockStatement(
-                            [
-                                t.IfStatement(
-                                    t.UnaryExpression("!",
-                                        t.memberExpression(
-                                            t.Identifier('window'),
-                                            t.Identifier('kwolaCounters')
-                                        )
-                                    ),
-                                    t.expressionStatement(
-                                        t.assignmentExpression(
-                                            "=",
-                                            t.memberExpression(
-                                                t.Identifier('window'),
-                                                t.Identifier('kwolaCounters')
-                                            ),
-                                            t.ObjectExpression([])
-                                        )
-
-                                    )
-                                ),
-                                t.IfStatement(
-                                    t.UnaryExpression("!",
-                                        t.memberExpression(
-                                            t.Identifier('window'),
-                                            t.Identifier('kwolaEvents')
-                                        )
-                                    ),
-                                    t.expressionStatement(
-                                        t.assignmentExpression(
-                                            "=",
-                                            t.memberExpression(
-                                                t.Identifier('window'),
-                                                t.Identifier('kwolaEvents')
-                                            ),
-                                            t.newExpression(
-                                                t.Identifier('WeakMap'),
-                                                []
-                                            )
-                                        )
-
-                                    )
-                                ),
-                                t.expressionStatement(
-                                    t.assignmentExpression(
-                                        "=",
-                                        t.memberExpression(
-                                            t.memberExpression(
-                                                t.Identifier('window'),
-                                                t.Identifier('kwolaCounters')
-                                            ),
-                                            t.stringLiteral(file),
-                                            true
-                                        ),
-                                        t.Identifier(globalCounterVariable)
-                                    )
-                                ),
-                                t.expressionStatement(
-                                    t.assignmentExpression(
-                                        "=",
-                                        t.Identifier(globalEventsVariable),
-                                        t.memberExpression(
-                                            t.Identifier('window'),
-                                            t.Identifier('kwolaEvents')
-                                        )
-                                    )
-                                )
-                            ]
-                        ),
-                        generateCatchClause()
-                    )
                 );
 
                 path.unshiftContainer('body',
