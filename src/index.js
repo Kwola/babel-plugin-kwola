@@ -1,7 +1,7 @@
 
 export default function({types: t }) {
   let branchCounter = 0;
-  let debugMode = true;
+  let debugMode = false;
 
   let callStatementsInteractedWith = new WeakMap();
 
