@@ -24,16 +24,36 @@ export default function({types: t }) {
     let id = branchCounter;
     branchCounter += 1;
 
-    return  t.assignmentExpression(
-                    "+=",
-                    t.memberExpression(
-                        t.Identifier(globalCounterVariable),
-                        t.Identifier(id.toString()),
-                        true
-                    ),
-                    t.NumericLiteral(1)
+    return t.TryStatement(
+                t.BlockStatement(
+                    [
+                        t.expressionStatement(t.assignmentExpression(
+                                "+=",
+                                t.memberExpression(
+                                    t.Identifier(globalCounterVariable),
+                                    t.Identifier(id.toString()),
+                                    true
+                                ),
+                                t.NumericLiteral(1)
+                         ))
+                    ]
+                ),
+                t.CatchClause(
+                    t.Identifier("kwolaError"),
+                    t.BlockStatement([
+                        t.expressionStatement(
+                            t.CallExpression(
+                                t.memberExpression(
+                                    t.Identifier("console"),
+                                    t.Identifier("error"),
+                                    false
+                                ),
+                                [t.Identifier("kwolaError")]
+                            )
+                        )
+                    ])
+                )
              );
-
   };
 
     let containsAddEventListenerFunction = (node) =>
@@ -101,7 +121,25 @@ export default function({types: t }) {
         BlockStatement(path) {
             if(hasInstalledHeader) return;
 
-              path.unshiftContainer('body', t.expressionStatement(createCounterExpression(path)));
+            if(path.parent.type === 'TryStatement'
+                && path.parent.handler.param.type === 'Identifier'
+                && path.parent.handler.param.name === 'kwolaError'
+               )
+                {
+                    // Ignore this since this is the exact code we inserted and we don't want to recurse infinitely
+                    return;
+                }
+
+            if(path.parent.type === 'CatchClause'
+                && path.parent.param.type === 'Identifier'
+                && path.parent.param.name === 'kwolaError'
+               )
+                {
+                    // Ignore this since this is the exact code we inserted and we don't want to recurse infinitely
+                    return;
+                }
+
+              path.unshiftContainer('body', createCounterExpression(path));
         },
 
         IfStatement(path) {
@@ -140,7 +178,7 @@ export default function({types: t }) {
         SwitchCase(path) {
             if(hasInstalledHeader) return;
 
-              path.unshiftContainer('consequent', t.expressionStatement(createCounterExpression(path)));
+              path.unshiftContainer('consequent', createCounterExpression(path));
         },
 
         WhileStatement(path) {
@@ -460,8 +498,19 @@ export default function({types: t }) {
                             ]
                         ),
                         t.CatchClause(
-                            t.Identifier("err"),
-                            t.BlockStatement([])
+                            t.Identifier("kwolaError"),
+                            t.BlockStatement([
+                                t.expressionStatement(
+                                    t.CallExpression(
+                                        t.memberExpression(
+                                            t.Identifier("console"),
+                                            t.Identifier("error"),
+                                            false
+                                        ),
+                                        [t.Identifier("kwolaError")]
+                                    )
+                                )
+                            ])
                         )
                     )
                 );
