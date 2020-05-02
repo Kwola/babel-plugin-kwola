@@ -1,6 +1,7 @@
 
 export default function({types: t }) {
   let branchCounter = 0;
+  let debugMode = false;
 
   let fileIdentifier = Math.random().toString().replace("0.", "").substr(0, 6);
 
@@ -12,6 +13,35 @@ export default function({types: t }) {
     let globalEventVariableName = `event_${fileIdentifier}`;
     let globalElementVariableName = `element_${fileIdentifier}`;
     let globalFuncVariableName = `func_${fileIdentifier}`;
+
+  let generateCatchClause = () => {
+
+      if (debugMode)
+      {
+          return t.CatchClause(
+                t.Identifier("kwolaError"),
+                t.BlockStatement([
+                    t.expressionStatement(
+                        t.CallExpression(
+                            t.memberExpression(
+                                t.Identifier("console"),
+                                t.Identifier("error"),
+                                false
+                            ),
+                            [t.Identifier("kwolaError")]
+                        )
+                    )
+                ])
+            );
+      }
+      else
+      {
+          return t.CatchClause(
+                t.Identifier("kwolaError"),
+                t.BlockStatement([])
+            );
+      }
+    }
 
   let createCounterExpression = (path) =>
   {
@@ -38,21 +68,7 @@ export default function({types: t }) {
                          ))
                     ]
                 ),
-                t.CatchClause(
-                    t.Identifier("kwolaError"),
-                    t.BlockStatement([
-                        t.expressionStatement(
-                            t.CallExpression(
-                                t.memberExpression(
-                                    t.Identifier("console"),
-                                    t.Identifier("error"),
-                                    false
-                                ),
-                                [t.Identifier("kwolaError")]
-                            )
-                        )
-                    ])
-                )
+                generateCatchClause()
              );
   };
 
@@ -122,6 +138,8 @@ export default function({types: t }) {
             if(hasInstalledHeader) return;
 
             if(path.parent.type === 'TryStatement'
+                && path.parent.handler
+                && path.parent.handler.param
                 && path.parent.handler.param.type === 'Identifier'
                 && path.parent.handler.param.name === 'kwolaError'
                )
@@ -131,6 +149,7 @@ export default function({types: t }) {
                 }
 
             if(path.parent.type === 'CatchClause'
+                && path.parent.param
                 && path.parent.param.type === 'Identifier'
                 && path.parent.param.name === 'kwolaError'
                )
@@ -497,21 +516,7 @@ export default function({types: t }) {
                                 )
                             ]
                         ),
-                        t.CatchClause(
-                            t.Identifier("kwolaError"),
-                            t.BlockStatement([
-                                t.expressionStatement(
-                                    t.CallExpression(
-                                        t.memberExpression(
-                                            t.Identifier("console"),
-                                            t.Identifier("error"),
-                                            false
-                                        ),
-                                        [t.Identifier("kwolaError")]
-                                    )
-                                )
-                            ])
-                        )
+                        generateCatchClause()
                     )
                 );
 
