@@ -174,8 +174,9 @@ export default function({types: t }) {
             }
 
 
-
-            if(containsAddEventListenerFunction(path.node.callee) && path.node.arguments.length === 2 && enableEventHandlerTracking)
+            if(containsAddEventListenerFunction(path.node.callee) &&
+                (path.node.arguments.length === 2 || path.node.arguments.length === 3 || path.node.arguments.length === 4)
+                && enableEventHandlerTracking)
             {
                 path.replaceWith(
                     t.TryStatement(
@@ -212,7 +213,9 @@ export default function({types: t }) {
                     )
                 )
             }
-            if(containsRemoveEventListenerFunction(path.node.callee) && path.node.arguments.length === 2 && enableEventHandlerTracking)
+            if(containsRemoveEventListenerFunction(path.node.callee) &&
+                (path.node.arguments.length === 2 || path.node.arguments.length === 3 || path.node.arguments.length === 4)
+                && enableEventHandlerTracking)
             {
                 path.replaceWith(
                     t.TryStatement(
@@ -601,12 +604,26 @@ export default function({types: t }) {
                                             t.ExpressionStatement(
                                                 t.CallExpression(
                                                     t.MemberExpression(
-                                                        t.Identifier(globalElementVariableName),
-                                                        t.Identifier("addEventListener")
+                                                        t.MemberExpression(
+                                                            t.Identifier(globalElementVariableName),
+                                                            t.Identifier("addEventListener")
+                                                        ),
+                                                        t.Identifier("apply")
                                                     ),
                                                     [
-                                                        t.Identifier(globalEventVariableName),
-                                                        t.Identifier(globalFuncVariableName)
+                                                        t.NullLiteral(),
+                                                        t.CallExpression(
+                                                            t.MemberExpression(
+                                                                t.newExpression(
+                                                                    t.Identifier('Array'),
+                                                                    [t.Identifier("arguments")]
+                                                                ),
+                                                                t.Identifier("slice")
+                                                            ),
+                                                            [
+                                                                t.NumericLiteral(1)
+                                                            ]
+                                                        )
                                                     ]
                                                 )
                                             )
@@ -696,12 +713,26 @@ export default function({types: t }) {
                                             t.ExpressionStatement(
                                                 t.CallExpression(
                                                     t.MemberExpression(
-                                                        t.Identifier(globalElementVariableName),
-                                                        t.Identifier("removeEventListener")
+                                                        t.MemberExpression(
+                                                            t.Identifier(globalElementVariableName),
+                                                            t.Identifier("removeEventListener")
+                                                        ),
+                                                        t.Identifier("apply")
                                                     ),
                                                     [
-                                                        t.Identifier(globalEventVariableName),
-                                                        t.Identifier(globalFuncVariableName)
+                                                        t.NullLiteral(),
+                                                        t.CallExpression(
+                                                            t.MemberExpression(
+                                                                t.newExpression(
+                                                                    t.Identifier('Array'),
+                                                                    [t.Identifier("arguments")]
+                                                                ),
+                                                                t.Identifier("slice")
+                                                            ),
+                                                            [
+                                                                t.NumericLiteral(1)
+                                                            ]
+                                                        )
                                                     ]
                                                 )
                                             )
