@@ -6,10 +6,13 @@ export default function({types: t }) {
 
     const enableLineCounting = process.env['KWOLA_ENABLE_LINE_COUNTING'] !== 'false';
     const enableEventHandlerTracking = process.env['KWOLA_ENABLE_EVENT_HANDLER_TRACKING'] !== 'false';
+    let fileIdentifier = Math.random().toString().replace("0.", "").substr(0, 8);
+    if(process.env['KWOLA_RESOURCE_ID'])
+    {
+        fileIdentifier = process.env['KWOLA_RESOURCE_ID'];
+    }
 
     let callStatementsInteractedWith = new WeakMap();
-
-    let fileIdentifier = Math.random().toString().replace("0.", "").substr(0, 8);
 
     let globalCounterVariable = `globalKwolaCounter_${fileIdentifier}`;
     let globalEventsVariable= `globalKwolaEvents_${fileIdentifier}`;
