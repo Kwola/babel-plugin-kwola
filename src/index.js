@@ -13,6 +13,7 @@ export default function({types: t }) {
     }
 
     let callStatementsInteractedWith = new WeakMap();
+    let blockStatementsInteractedWith = new WeakMap();
 
     let globalCounterVariable = `globalKwolaCounter_${fileIdentifier}`;
     let globalEventsVariable= `globalKwolaEvents_${fileIdentifier}`;
@@ -280,6 +281,12 @@ export default function({types: t }) {
                     // Ignore this since this is the exact code we inserted and we don't want to recurse infinitely
                     return;
                 }
+
+            if (blockStatementsInteractedWith.has(path.node))
+            {
+                return;
+            }
+            blockStatementsInteractedWith.set(path.node, {});
 
               if(enableLineCounting)
               {
